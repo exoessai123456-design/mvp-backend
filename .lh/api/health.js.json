@@ -1,0 +1,22 @@
+{
+    "sourceFile": "api/health.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1757263475219,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1757440347450,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,11 @@\n-export default function handler(req, res) {\r\n-  if (req.method === \"GET\") return res.status(200).send(\"ok\");\r\n+import { withCors } from \"../../lib/middleware.js\";\r\n+\r\n\\ No newline at end of file\n+function handler(req, res) {\r\n+  if (req.method === \"GET\") {\r\n+    return res.status(200).send(\"ok\");\r\n+  }\r\n+\r\n   return res.status(405).json({ message: \"Method not allowed\" });\r\n-}\n+}\r\n+\r\n+export default withCors(handler);\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1757263475219,
+            "name": "Commit-0",
+            "content": "export default function handler(req, res) {\r\n  if (req.method === \"GET\") return res.status(200).send(\"ok\");\r\n  return res.status(405).json({ message: \"Method not allowed\" });\r\n}"
+        }
+    ]
+}

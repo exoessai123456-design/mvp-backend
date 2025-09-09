@@ -1,0 +1,18 @@
+{
+    "sourceFile": "lib/reminderScheduler.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1757266326962,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1757266326962,
+            "name": "Commit-0",
+            "content": "import nodemailer from \"nodemailer\";\r\n\r\nconst transporter = nodemailer.createTransport({\r\n  service: \"gmail\",\r\n  auth: { user: process.env.ADMIN_EMAIL, pass: process.env.ADMIN_PASS },\r\n});\r\n\r\nexport async function scheduleEventReminder(event) {\r\n  const eventDate = new Date(event.date);\r\n  const now = new Date();\r\n\r\n  // Only send reminder if event is within the next 5 minutes\r\n  if (event.status !== \"CONFIRMED\" || eventDate - now > 5 * 60000) return;\r\n\r\n  try {\r\n    await transporter.sendMail({\r\n      from: process.env.ADMIN_EMAIL,\r\n      to: event.createdBy,\r\n      subject: `Reminder: \"${event.title}\" event in 5 minutes`,\r\n      text: `Your event \"${event.title}\" is scheduled at ${event.date}`,\r\n    });\r\n    console.log(`Reminder sent for \"${event.title}\"`);\r\n  } catch (err) {\r\n    console.error(\"Failed to send reminder:\", err);\r\n  }\r\n}\r\n"
+        }
+    ]
+}

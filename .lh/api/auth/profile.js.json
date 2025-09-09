@@ -1,0 +1,58 @@
+{
+    "sourceFile": "api/auth/profile.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 10,
+            "patches": [
+                {
+                    "date": 1757264527280,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1757265318884,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,9 +7,9 @@\n     res.setHeader(\"Allow\", [\"GET\"]);\r\n     return res.status(405).end(`Method ${req.method} Not Allowed`);\r\n   }\r\n \r\n-  await connectDB(); // serverless-safe DB connection\r\n+  await connectDB();\r\n \r\n   const authHeader = req.headers.authorization;\r\n   if (!authHeader || !authHeader.startsWith(\"Bearer \")) {\r\n     return res.status(401).json({ msg: \"No token, auth denied\" });\r\n@@ -23,14 +23,12 @@\n \r\n     const admin = await Admin.findOne({ email }).select(\"-password\");\r\n     if (!admin) return res.status(404).json({ msg: \"Admin not found\" });\r\n \r\n-    const profile = {\r\n+    return res.status(200).json({\r\n       email: admin.email,\r\n       username: admin.email.split(\"@\")[0],\r\n-    };\r\n-\r\n-    return res.status(200).json(profile);\r\n+    });\r\n   } catch (err) {\r\n     console.error(err);\r\n     return res.status(401).json({ msg: \"Token is not valid\" });\r\n   }\r\n"
+                },
+                {
+                    "date": 1757265626887,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,16 +1,16 @@\n import connectDB from \"../../lib/db.js\";\r\n+import Admin from \"../../models/admin.js\";\r\n import jwt from \"jsonwebtoken\";\r\n-import Admin from \"../../models/admin.js\";\r\n \r\n export default async function handler(req, res) {\r\n+  await connectDB();\r\n+\r\n   if (req.method !== \"GET\") {\r\n     res.setHeader(\"Allow\", [\"GET\"]);\r\n     return res.status(405).end(`Method ${req.method} Not Allowed`);\r\n   }\r\n \r\n-  await connectDB();\r\n-\r\n   const authHeader = req.headers.authorization;\r\n   if (!authHeader || !authHeader.startsWith(\"Bearer \")) {\r\n     return res.status(401).json({ msg: \"No token, auth denied\" });\r\n   }\r\n"
+                },
+                {
+                    "date": 1757266618628,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,5 @@\n-import connectDB from \"../../lib/db.js\";\r\n+import { connectDB, Event } from \"../../lib/db.js\";\r\n import Admin from \"../../models/admin.js\";\r\n import jwt from \"jsonwebtoken\";\r\n \r\n export default async function handler(req, res) {\r\n"
+                },
+                {
+                    "date": 1757267585086,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,5 @@\n-import { connectDB, Event } from \"../../lib/db.js\";\r\n-import Admin from \"../../models/admin.js\";\r\n+import connectDB, { Admin } from \"../../lib/db.js\";\r\n import jwt from \"jsonwebtoken\";\r\n \r\n export default async function handler(req, res) {\r\n   await connectDB();\r\n@@ -15,17 +14,16 @@\n     return res.status(401).json({ msg: \"No token, auth denied\" });\r\n   }\r\n \r\n   const token = authHeader.split(\" \")[1];\r\n-\r\n   try {\r\n     const decoded = jwt.verify(token, process.env.JWT_SECRET);\r\n     const email = decoded.admin.email;\r\n \r\n     const admin = await Admin.findOne({ email }).select(\"-password\");\r\n     if (!admin) return res.status(404).json({ msg: \"Admin not found\" });\r\n \r\n-    return res.status(200).json({\r\n+    return res.json({\r\n       email: admin.email,\r\n       username: admin.email.split(\"@\")[0],\r\n     });\r\n   } catch (err) {\r\n"
+                },
+                {
+                    "date": 1757270366956,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,15 +1,16 @@\n-import connectDB, { Admin } from \"../../lib/db.js\";\r\n+import connectDB from \"../../lib/db.js\";\r\n+import Admin from \"../../models/admin.js\";\r\n import jwt from \"jsonwebtoken\";\r\n \r\n export default async function handler(req, res) {\r\n-  await connectDB();\r\n-\r\n   if (req.method !== \"GET\") {\r\n     res.setHeader(\"Allow\", [\"GET\"]);\r\n     return res.status(405).end(`Method ${req.method} Not Allowed`);\r\n   }\r\n \r\n+  await connectDB();\r\n+\r\n   const authHeader = req.headers.authorization;\r\n   if (!authHeader || !authHeader.startsWith(\"Bearer \")) {\r\n     return res.status(401).json({ msg: \"No token, auth denied\" });\r\n   }\r\n@@ -21,12 +22,9 @@\n \r\n     const admin = await Admin.findOne({ email }).select(\"-password\");\r\n     if (!admin) return res.status(404).json({ msg: \"Admin not found\" });\r\n \r\n-    return res.json({\r\n-      email: admin.email,\r\n-      username: admin.email.split(\"@\")[0],\r\n-    });\r\n+    return res.status(200).json({ email: admin.email, username: admin.email.split(\"@\")[0] });\r\n   } catch (err) {\r\n     console.error(err);\r\n     return res.status(401).json({ msg: \"Token is not valid\" });\r\n   }\r\n"
+                },
+                {
+                    "date": 1757439842309,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,9 @@\n import connectDB from \"../../lib/db.js\";\r\n import Admin from \"../../models/admin.js\";\r\n import jwt from \"jsonwebtoken\";\r\n \r\n-export default async function handler(req, res) {\r\n+ async function handler(req, res) {\r\n   if (req.method !== \"GET\") {\r\n     res.setHeader(\"Allow\", [\"GET\"]);\r\n     return res.status(405).end(`Method ${req.method} Not Allowed`);\r\n   }\r\n"
+                },
+                {
+                    "date": 1757439881572,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -28,4 +28,8 @@\n     console.error(err);\r\n     return res.status(401).json({ msg: \"Token is not valid\" });\r\n   }\r\n }\r\n+\r\n+\r\n+\r\n+export default withAuth(handler);\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1757439899736,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,9 @@\n import connectDB from \"../../lib/db.js\";\r\n import Admin from \"../../models/admin.js\";\r\n import jwt from \"jsonwebtoken\";\r\n \r\n+\r\n  async function handler(req, res) {\r\n   if (req.method !== \"GET\") {\r\n     res.setHeader(\"Allow\", [\"GET\"]);\r\n     return res.status(405).end(`Method ${req.method} Not Allowed`);\r\n"
+                },
+                {
+                    "date": 1757440030342,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,9 @@\n import connectDB from \"../../lib/db.js\";\r\n import Admin from \"../../models/admin.js\";\r\n import jwt from \"jsonwebtoken\";\r\n+import { withAuth } from \"@/lib/middleware\";\r\n \r\n-\r\n  async function handler(req, res) {\r\n   if (req.method !== \"GET\") {\r\n     res.setHeader(\"Allow\", [\"GET\"]);\r\n     return res.status(405).end(`Method ${req.method} Not Allowed`);\r\n"
+                },
+                {
+                    "date": 1757440736418,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,8 @@\n import connectDB from \"../../lib/db.js\";\r\n import Admin from \"../../models/admin.js\";\r\n import jwt from \"jsonwebtoken\";\r\n-import { withAuth } from \"@/lib/middleware\";\r\n+import { withAuth } from \"../../lib/middleware.js\";\r\n \r\n  async function handler(req, res) {\r\n   if (req.method !== \"GET\") {\r\n     res.setHeader(\"Allow\", [\"GET\"]);\r\n"
+                }
+            ],
+            "date": 1757264527280,
+            "name": "Commit-0",
+            "content": "import connectDB from \"../../lib/db.js\";\r\nimport jwt from \"jsonwebtoken\";\r\nimport Admin from \"../../models/admin.js\";\r\n\r\nexport default async function handler(req, res) {\r\n  if (req.method !== \"GET\") {\r\n    res.setHeader(\"Allow\", [\"GET\"]);\r\n    return res.status(405).end(`Method ${req.method} Not Allowed`);\r\n  }\r\n\r\n  await connectDB(); // serverless-safe DB connection\r\n\r\n  const authHeader = req.headers.authorization;\r\n  if (!authHeader || !authHeader.startsWith(\"Bearer \")) {\r\n    return res.status(401).json({ msg: \"No token, auth denied\" });\r\n  }\r\n\r\n  const token = authHeader.split(\" \")[1];\r\n\r\n  try {\r\n    const decoded = jwt.verify(token, process.env.JWT_SECRET);\r\n    const email = decoded.admin.email;\r\n\r\n    const admin = await Admin.findOne({ email }).select(\"-password\");\r\n    if (!admin) return res.status(404).json({ msg: \"Admin not found\" });\r\n\r\n    const profile = {\r\n      email: admin.email,\r\n      username: admin.email.split(\"@\")[0],\r\n    };\r\n\r\n    return res.status(200).json(profile);\r\n  } catch (err) {\r\n    console.error(err);\r\n    return res.status(401).json({ msg: \"Token is not valid\" });\r\n  }\r\n}\r\n"
+        }
+    ]
+}

@@ -1,0 +1,42 @@
+{
+    "sourceFile": "createTestEvents.mjs",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 6,
+            "patches": [
+                {
+                    "date": 1757276369835,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1757276618758,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,9 @@\n // createTestEvents.mjs\r\n import connectDB, { Event } from \"./lib/db.js\";\r\n \r\n+import 'dotenv/config';\r\n+\r\n async function createTestEvents() {\r\n   await connectDB();\r\n \r\n   const now = new Date();\r\n"
+                },
+                {
+                    "date": 1757276767352,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,9 +11,9 @@\n   // Event 1: CONFIRMED\r\n   await Event.create({\r\n     title: \"Test Event Confirmed\",\r\n     date: new Date(now.getTime() + 10 * 60000), // 10 min later\r\n-    createdBy: \"testuser@example.com\",\r\n+    createdBy: \"exoessai123456\",\r\n     status: \"CONFIRMED\",\r\n   });\r\n \r\n   // Event 2: CANCELLED\r\n"
+                },
+                {
+                    "date": 1757276775185,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,9 +11,9 @@\n   // Event 1: CONFIRMED\r\n   await Event.create({\r\n     title: \"Test Event Confirmed\",\r\n     date: new Date(now.getTime() + 10 * 60000), // 10 min later\r\n-    createdBy: \"exoessai123456\",\r\n+    createdBy: \"exoessai1234560\",\r\n     status: \"CONFIRMED\",\r\n   });\r\n \r\n   // Event 2: CANCELLED\r\n"
+                },
+                {
+                    "date": 1757276782492,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,34 @@\n+// createTestEvents.mjs\r\n+import connectDB, { Event } from \"./lib/db.js\";\r\n+\r\n+import 'dotenv/config';\r\n+\r\n+async function createTestEvents() {\r\n+  await connectDB();\r\n+\r\n+  const now = new Date();\r\n+\r\n+  // Event 1: CONFIRMED\r\n+  await Event.create({\r\n+    title: \"Test Event Confirmed\",\r\n+    date: new Date(now.getTime() + 10 * 60000), // 10 min later\r\n+    createdBy: \"exoessai123456@gmail.com\",\r\n+    status: \"CONFIRMED\",\r\n+  });\r\n+\r\n+  // Event 2: CANCELLED\r\n+  await Event.create({\r\n+    title: \"Test Event Cancelled\",\r\n+    date: new Date(now.getTime() + 15 * 60000), // 15 min later\r\n+    createdBy: \"testuser@example.com\",\r\n+    status: \"CANCELLED\",\r\n+  });\r\n+\r\n+  console.log(\"Test events created successfully\");\r\n+  process.exit(0);\r\n+}\r\n+\r\n+createTestEvents().catch(err => {\r\n+  console.error(\"Failed to create test events:\", err);\r\n+  process.exit(1);\r\n+});\r\n"
+                },
+                {
+                    "date": 1757276791991,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,34 @@\n+// createTestEvents.mjs\r\n+import connectDB, { Event } from \"./lib/db.js\";\r\n+\r\n+import 'dotenv/config';\r\n+\r\n+async function createTestEvents() {\r\n+  await connectDB();\r\n+\r\n+  const now = new Date();\r\n+\r\n+  // Event 1: CONFIRMED\r\n+  await Event.create({\r\n+    title: \"Test Event Confirmed\",\r\n+    date: new Date(now.getTime() + 10 * 60000), // 10 min later\r\n+    createdBy: \"exoessai123456@gmail.com\",\r\n+    status: \"CONFIRMED\",\r\n+  });\r\n+\r\n+  // Event 2: CANCELLED\r\n+  await Event.create({\r\n+    title: \"Test Event Cancelled\",\r\n+    date: new Date(now.getTime() + 15 * 60000), // 15 min later\r\n+    createdBy: \"gmail\",\r\n+    status: \"CANCELLED\",\r\n+  });\r\n+\r\n+  console.log(\"Test events created successfully\");\r\n+  process.exit(0);\r\n+}\r\n+\r\n+createTestEvents().catch(err => {\r\n+  console.error(\"Failed to create test events:\", err);\r\n+  process.exit(1);\r\n+});\r\n"
+                },
+                {
+                    "date": 1757276808911,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,9 +19,9 @@\n   // Event 2: CANCELLED\r\n   await Event.create({\r\n     title: \"Test Event Cancelled\",\r\n     date: new Date(now.getTime() + 15 * 60000), // 15 min later\r\n-    createdBy: \"gmail\",\r\n+    createdBy: \"testuser@.com\",\r\n     status: \"CANCELLED\",\r\n   });\r\n \r\n   console.log(\"Test events created successfully\");\r\n@@ -31,72 +31,4 @@\n createTestEvents().catch(err => {\r\n   console.error(\"Failed to create test events:\", err);\r\n   process.exit(1);\r\n });\r\n-// createTestEvents.mjs\r\n-import connectDB, { Event } from \"./lib/db.js\";\r\n-\r\n-import 'dotenv/config';\r\n-\r\n-async function createTestEvents() {\r\n-  await connectDB();\r\n-\r\n-  const now = new Date();\r\n-\r\n-  // Event 1: CONFIRMED\r\n-  await Event.create({\r\n-    title: \"Test Event Confirmed\",\r\n-    date: new Date(now.getTime() + 10 * 60000), // 10 min later\r\n-    createdBy: \"exoessai123456@gmail.com\",\r\n-    status: \"CONFIRMED\",\r\n-  });\r\n-\r\n-  // Event 2: CANCELLED\r\n-  await Event.create({\r\n-    title: \"Test Event Cancelled\",\r\n-    date: new Date(now.getTime() + 15 * 60000), // 15 min later\r\n-    createdBy: \"testuser@example.com\",\r\n-    status: \"CANCELLED\",\r\n-  });\r\n-\r\n-  console.log(\"Test events created successfully\");\r\n-  process.exit(0);\r\n-}\r\n-\r\n-createTestEvents().catch(err => {\r\n-  console.error(\"Failed to create test events:\", err);\r\n-  process.exit(1);\r\n-});\r\n-// createTestEvents.mjs\r\n-import connectDB, { Event } from \"./lib/db.js\";\r\n-\r\n-import 'dotenv/config';\r\n-\r\n-async function createTestEvents() {\r\n-  await connectDB();\r\n-\r\n-  const now = new Date();\r\n-\r\n-  // Event 1: CONFIRMED\r\n-  await Event.create({\r\n-    title: \"Test Event Confirmed\",\r\n-    date: new Date(now.getTime() + 10 * 60000), // 10 min later\r\n-    createdBy: \"exoessai1234560\",\r\n-    status: \"CONFIRMED\",\r\n-  });\r\n-\r\n-  // Event 2: CANCELLED\r\n-  await Event.create({\r\n-    title: \"Test Event Cancelled\",\r\n-    date: new Date(now.getTime() + 15 * 60000), // 15 min later\r\n-    createdBy: \"testuser@example.com\",\r\n-    status: \"CANCELLED\",\r\n-  });\r\n-\r\n-  console.log(\"Test events created successfully\");\r\n-  process.exit(0);\r\n-}\r\n-\r\n-createTestEvents().catch(err => {\r\n-  console.error(\"Failed to create test events:\", err);\r\n-  process.exit(1);\r\n-});\r\n"
+                }
+            ],
+            "date": 1757276369835,
+            "name": "Commit-0",
+            "content": "// createTestEvents.mjs\r\nimport connectDB, { Event } from \"./lib/db.js\";\r\n\r\nasync function createTestEvents() {\r\n  await connectDB();\r\n\r\n  const now = new Date();\r\n\r\n  // Event 1: CONFIRMED\r\n  await Event.create({\r\n    title: \"Test Event Confirmed\",\r\n    date: new Date(now.getTime() + 10 * 60000), // 10 min later\r\n    createdBy: \"testuser@example.com\",\r\n    status: \"CONFIRMED\",\r\n  });\r\n\r\n  // Event 2: CANCELLED\r\n  await Event.create({\r\n    title: \"Test Event Cancelled\",\r\n    date: new Date(now.getTime() + 15 * 60000), // 15 min later\r\n    createdBy: \"testuser@example.com\",\r\n    status: \"CANCELLED\",\r\n  });\r\n\r\n  console.log(\"Test events created successfully\");\r\n  process.exit(0);\r\n}\r\n\r\ncreateTestEvents().catch(err => {\r\n  console.error(\"Failed to create test events:\", err);\r\n  process.exit(1);\r\n});\r\n"
+        }
+    ]
+}

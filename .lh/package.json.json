@@ -1,0 +1,54 @@
+{
+    "sourceFile": "package.json",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 9,
+            "patches": [
+                {
+                    "date": 1757262293653,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1757262411012,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,8 +2,7 @@\n   \"name\": \"testid\",\n   \"version\": \"1.0.0\",\n   \"private\": true,\n   \"scripts\": {\n-    \"dev\": \"vercel dev\",\n-    \"start\": \"vercel dev\"\n+    \"test\": \"echo \\\"No test specified\\\" && exit 0\"\n   }\n }\n"
+                },
+                {
+                    "date": 1757276412348,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,6 +3,18 @@\n   \"version\": \"1.0.0\",\n   \"private\": true,\n   \"scripts\": {\n     \"test\": \"echo \\\"No test specified\\\" && exit 0\"\n-  }\n+  },\n+  \"dependencies\": {\n+    \"bcryptjs\": \"^3.0.2\",\n+    \"cors\": \"^2.8.5\",\n+    \"jsonwebtoken\": \"^9.0.2\",\n+    \"mongoose\": \"^8.18.0\",\n+    \"node-fetch\": \"^3.3.2\",\n+    \"node-schedule\": \"^2.1.1\",\n+    \"nodemailer\": \"^7.0.6\"\n+  },\n+  {\n+  \"type\": \"module\"\n }\n+}\n"
+                },
+                {
+                    "date": 1757276425260,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -13,8 +13,6 @@\n     \"node-fetch\": \"^3.3.2\",\n     \"node-schedule\": \"^2.1.1\",\n     \"nodemailer\": \"^7.0.6\"\n   },\n-  {\n-  \"type\": \"module\"\n+  \n }\n-}\n"
+                },
+                {
+                    "date": 1757276438313,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -13,6 +13,9 @@\n     \"node-fetch\": \"^3.3.2\",\n     \"node-schedule\": \"^2.1.1\",\n     \"nodemailer\": \"^7.0.6\"\n   },\n+  \"scripts\": {\n+    \"test\": \"echo \\\"No test specified\\\" && exit 0\"\n+  }\n   \n }\n"
+                },
+                {
+                    "date": 1757276447914,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -13,9 +13,9 @@\n     \"node-fetch\": \"^3.3.2\",\n     \"node-schedule\": \"^2.1.1\",\n     \"nodemailer\": \"^7.0.6\"\n   },\n-  \"scripts\": {\n-    \"test\": \"echo \\\"No test specified\\\" && exit 0\"\n+  \"type\": {\n+    module\n   }\n   \n }\n"
+                },
+                {
+                    "date": 1757276459621,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,8 +14,8 @@\n     \"node-schedule\": \"^2.1.1\",\n     \"nodemailer\": \"^7.0.6\"\n   },\n   \"type\": {\n-    module\n-  }\n+    \"module\"\n+  },\n   \n }\n"
+                },
+                {
+                    "date": 1757276500506,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -13,9 +13,5 @@\n     \"node-fetch\": \"^3.3.2\",\n     \"node-schedule\": \"^2.1.1\",\n     \"nodemailer\": \"^7.0.6\"\n   },\n-  \"type\": {\n-    \"module\"\n-  },\n-  \n }\n"
+                },
+                {
+                    "date": 1757276507310,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,9 @@\n {\n   \"name\": \"testid\",\n   \"version\": \"1.0.0\",\n   \"private\": true,\n+   \"type\": \"module\"\n   \"scripts\": {\n     \"test\": \"echo \\\"No test specified\\\" && exit 0\"\n   },\n   \"dependencies\": {\n@@ -12,6 +13,6 @@\n     \"mongoose\": \"^8.18.0\",\n     \"node-fetch\": \"^3.3.2\",\n     \"node-schedule\": \"^2.1.1\",\n     \"nodemailer\": \"^7.0.6\"\n-  },\n+  }\n }\n"
+                },
+                {
+                    "date": 1757277326312,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,15 +1,15 @@\n {\n   \"name\": \"testid\",\n   \"version\": \"1.0.0\",\n   \"private\": true,\n-   \"type\": \"module\"\n   \"scripts\": {\n     \"test\": \"echo \\\"No test specified\\\" && exit 0\"\n   },\n   \"dependencies\": {\n     \"bcryptjs\": \"^3.0.2\",\n     \"cors\": \"^2.8.5\",\n+    \"dotenv\": \"^17.2.2\",\n     \"jsonwebtoken\": \"^9.0.2\",\n     \"mongoose\": \"^8.18.0\",\n     \"node-fetch\": \"^3.3.2\",\n     \"node-schedule\": \"^2.1.1\",\n"
+                }
+            ],
+            "date": 1757262293653,
+            "name": "Commit-0",
+            "content": "{\n  \"name\": \"testid\",\n  \"version\": \"1.0.0\",\n  \"private\": true,\n  \"scripts\": {\n    \"dev\": \"vercel dev\",\n    \"start\": \"vercel dev\"\n  }\n}\n"
+        }
+    ]
+}

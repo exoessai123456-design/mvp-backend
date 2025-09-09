@@ -1,0 +1,18 @@
+{
+    "sourceFile": "lib/cors.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1757439223435,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1757439223435,
+            "name": "Commit-0",
+            "content": "export function cors(req, res) {\r\n  res.setHeader(\"Access-Control-Allow-Credentials\", \"true\");\r\n  res.setHeader(\"Access-Control-Allow-Origin\", \"http://localhost:3001\");\r\n  res.setHeader(\"Access-Control-Allow-Methods\", \"GET,POST,PUT,DELETE,OPTIONS\");\r\n  res.setHeader(\"Access-Control-Allow-Headers\", \"Content-Type, Authorization\");\r\n\r\n  if (req.method === \"OPTIONS\") {\r\n    res.status(200).end();\r\n    return true; // means request handled\r\n  }\r\n  return false;\r\n}"
+        }
+    ]
+}

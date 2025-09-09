@@ -1,0 +1,18 @@
+{
+    "sourceFile": "api/jobs/[eventId].js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1757267897633,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1757267897633,
+            "name": "Commit-0",
+            "content": "import connectDB from \"../../lib/db.js\";\r\nimport Job from \"../../models/job.js\";\r\n\r\nawait connectDB();\r\n\r\nexport default async function handler(req, res) {\r\n  if (req.method !== \"PUT\") return res.status(405).json({ msg: \"Method not allowed\" });\r\n\r\n  try {\r\n    const updatedJob = await Job.findOneAndUpdate(\r\n      { eventId: req.query.eventId },\r\n      { ...req.body, updatedOn: new Date() },\r\n      { new: true }\r\n    );\r\n\r\n    if (!updatedJob) return res.status(404).json({ msg: \"Job not found\" });\r\n    return res.json(updatedJob);\r\n  } catch (err) {\r\n    console.error(err);\r\n    return res.status(500).json({ msg: \"Error updating job\" });\r\n  }\r\n}\r\n"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "api/[eventId].js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1757262032006,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1757262032006,
+            "name": "Commit-0",
+            "content": "// api/events/[eventId].js\r\nexport default async function handler(req, res) {\r\n  const { eventId } = req.query; // dynamic param\r\n\r\n  // tiny in-memory store (for demo only; resets when function cold-starts)\r\n  global.events = global.events || {\r\n    \"1\": { id: \"1\", title: \"Sample event\", date: \"2025-09-07\", status: \"CONFIRMED\" }\r\n  };\r\n\r\n  if (req.method === \"GET\") {\r\n    const ev = global.events[eventId];\r\n    if (!ev) return res.status(404).json({ message: \"Event not found\" });\r\n    return res.status(200).json(ev);\r\n  }\r\n\r\n  if (req.method === \"PUT\") {\r\n    const { title, date, status } = req.body ?? {};\r\n    if (!global.events[eventId]) return res.status(404).json({ message: \"Event not found\" });\r\n    global.events[eventId] = { ...global.events[eventId], ...(title && { title }), ...(date && { date }), ...(status && { status }) };\r\n    return res.status(200).json(global.events[eventId]);\r\n  }\r\n\r\n  if (req.method === \"DELETE\") {\r\n    if (!global.events[eventId]) return res.status(404).json({ message: \"Event not found\" });\r\n    delete global.events[eventId];\r\n    return res.status(200).json({ message: `Event ${eventId} deleted` });\r\n  }\r\n\r\n  return res.status(405).json({ message: \"Method not allowed\" });\r\n}\r\n"
+        }
+    ]
+}

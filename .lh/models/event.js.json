@@ -1,0 +1,18 @@
+{
+    "sourceFile": "models/event.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1757265888155,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1757265888155,
+            "name": "Commit-0",
+            "content": "import mongoose from \"mongoose\";\r\n\r\nconst eventSchema = new mongoose.Schema({\r\n  title: { type: String, required: true },\r\n  date: { type: Date, required: true },\r\n  name: { type: String, required: true },\r\n  phone: { type: String, required: true },\r\n  type: { type: String, required: true },\r\n  status: {\r\n    type: String,\r\n    enum: [\"CONFIRMED\", \"COMPLETED\", \"CANCELLED\", \"DELETED\"],\r\n    default: \"CONFIRMED\",\r\n  },\r\n  createdBy: { type: String, required: true },\r\n}, { timestamps: true });\r\n\r\nconst Event = mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n\r\nexport default Event;\r\n"
+        }
+    ]
+}

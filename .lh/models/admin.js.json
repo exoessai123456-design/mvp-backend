@@ -1,0 +1,22 @@
+{
+    "sourceFile": "models/admin.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1757264748702,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1757265278148,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,14 +5,9 @@\n   email: { type: String, required: true, unique: true },\r\n   password: { type: String, required: true },\r\n }, { timestamps: true });\r\n \r\n-// Static helper\r\n-adminSchema.statics.findByEmail = function (email) {\r\n-  return this.findOne({ email });\r\n-};\r\n-\r\n-// Hash password automatically before saving\r\n+// Hash password before saving\r\n adminSchema.pre(\"save\", async function (next) {\r\n   if (!this.isModified(\"password\")) return next();\r\n   this.password = await bcrypt.hash(this.password, 10);\r\n   next();\r\n@@ -22,7 +17,11 @@\n adminSchema.methods.comparePassword = function (plainPassword) {\r\n   return bcrypt.compare(plainPassword, this.password);\r\n };\r\n \r\n-// Reuse existing model if already compiled\r\n+// Static helper\r\n+adminSchema.statics.findByEmail = function (email) {\r\n+  return this.findOne({ email });\r\n+};\r\n+\r\n const Admin = mongoose.models.Admin || mongoose.model(\"Admin\", adminSchema);\r\n export default Admin;\r\n"
+                }
+            ],
+            "date": 1757264748702,
+            "name": "Commit-0",
+            "content": "import mongoose from \"mongoose\";\r\nimport bcrypt from \"bcryptjs\";\r\n\r\nconst adminSchema = new mongoose.Schema({\r\n  email: { type: String, required: true, unique: true },\r\n  password: { type: String, required: true },\r\n}, { timestamps: true });\r\n\r\n// Static helper\r\nadminSchema.statics.findByEmail = function (email) {\r\n  return this.findOne({ email });\r\n};\r\n\r\n// Hash password automatically before saving\r\nadminSchema.pre(\"save\", async function (next) {\r\n  if (!this.isModified(\"password\")) return next();\r\n  this.password = await bcrypt.hash(this.password, 10);\r\n  next();\r\n});\r\n\r\n// Compare password\r\nadminSchema.methods.comparePassword = function (plainPassword) {\r\n  return bcrypt.compare(plainPassword, this.password);\r\n};\r\n\r\n// Reuse existing model if already compiled\r\nconst Admin = mongoose.models.Admin || mongoose.model(\"Admin\", adminSchema);\r\nexport default Admin;\r\n"
+        }
+    ]
+}
