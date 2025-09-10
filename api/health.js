@@ -1,4 +1,4 @@
-import { withCors } from "../../lib/middleware.js";
+import { withCors } from "../lib/middleware.js";
 
 function handler(req, res) {
   if (req.method === "GET") {
