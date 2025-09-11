@@ -38,18 +38,13 @@ export default async function handler(req, res) {
 
   const now = new Date();
 
-  // Reminder window: 5 minutes ahead ± 1 minute
-  const reminderTime = new Date(now.getTime() + 5 * 60000);
-  const reminderWindowEnd = new Date(reminderTime.getTime() + 60000); // 1-minute window
-
-  console.log("Checking for events between", reminderTime, "and", reminderWindowEnd);
-
+  // Check events where reminder should be sent now
   const events = await Event.find({
-    date: { $gte: reminderTime, $lt: reminderWindowEnd },
-    status: "CONFIRMED",
-    reminderSent: { $ne: true },
+          status: "CONFIRMED",
+          reminderSent: { $ne: true },
+          date: { $lte: new Date(now.getTime() + 5*60000) }, // event is within next 5 minutes
   });
-
+  
   console.log(`Found ${events.length} events to remind`);
 
   let processed = 0;
