@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/reminder?secret=d94a2f31b3f54f0b9cda4d3a3e2d7c8ff9a54b77c2e49e3f71f0d91f83bdb0a1",
-      "schedule": "* * * * *"
-    }
-  ]
-}
