@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1757265888155,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1757619467692,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,19 +1,26 @@\n import mongoose from \"mongoose\";\r\n \r\n-const eventSchema = new mongoose.Schema({\r\n-  title: { type: String, required: true },\r\n-  date: { type: Date, required: true },\r\n-  name: { type: String, required: true },\r\n-  phone: { type: String, required: true },\r\n-  type: { type: String, required: true },\r\n-  status: {\r\n-    type: String,\r\n-    enum: [\"CONFIRMED\", \"COMPLETED\", \"CANCELLED\", \"DELETED\"],\r\n-    default: \"CONFIRMED\",\r\n+const eventSchema = new mongoose.Schema(\r\n+  {\r\n+    title: { type: String, required: true },\r\n+    date: { type: Date, required: true },\r\n+    name: { type: String, required: true },\r\n+    phone: { type: String, required: true },\r\n+    type: { type: String, required: true },\r\n+    status: {\r\n+      type: String,\r\n+      enum: [\"CONFIRMED\", \"COMPLETED\", \"CANCELLED\", \"DELETED\"],\r\n+      default: \"CONFIRMED\",\r\n+    },\r\n+    createdBy: { type: String, required: true },\r\n+\r\n+    // ✅ new field: track if reminder was already sent\r\n+    reminderSent: { type: Boolean, default: false },\r\n   },\r\n-  createdBy: { type: String, required: true },\r\n-}, { timestamps: true });\r\n+  { timestamps: true }\r\n+);\r\n \r\n-const Event = mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n+const Event =\r\n+  mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n \r\n export default Event;\r\n"
                 }
             ],
             "date": 1757265888155,

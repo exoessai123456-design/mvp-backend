@@ -1,11 +1,14 @@
 import connectDB, { Event } from "../lib/db.js";
 import Job from "../models/job.js";
 import nodemailer from "nodemailer";
-import { withAuth } from "../lib/middleware.js";
 
+// Configure Nodemailer
 const transporter = nodemailer.createTransport({
   service: "gmail",
-  auth: { user: process.env.ADMIN_EMAIL, pass: process.env.ADMIN_PASS },
+  auth: {
+    user: process.env.ADMIN_EMAIL,
+    pass: process.env.ADMIN_PASS,
+  },
 });
 
 async function sendEmail(to, title, date) {
@@ -19,9 +22,15 @@ async function sendEmail(to, title, date) {
   });
 }
 
-async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).json({ msg: "Method not allowed" });
+  }
+
+  // 🔒 Secure with CRON_SECRET
+  const { secret } = req.query;
+  if (secret !== process.env.CRON_SECRET) {
+    return res.status(403).json({ msg: "Forbidden" });
   }
 
   await connectDB();
@@ -29,20 +38,25 @@ async function handler(req, res) {
   const now = new Date();
   const fiveMinutesLater = new Date(now.getTime() + 5 * 60000);
 
-  // Convert to UTC for MongoDB query
-  const nowUTC = new Date(now.toISOString());
-  const fiveMinutesLaterUTC = new Date(fiveMinutesLater.toISOString());
-
+  // Query events happening within the next 5 minutes
   const events = await Event.find({
-    date: { $gte: nowUTC, $lte: fiveMinutesLaterUTC },
+    date: { $gte: now, $lte: fiveMinutesLater },
+    reminderSent: { $ne: true }, // only events not yet reminded
   });
 
   let processed = 0;
 
   for (const event of events) {
     try {
-      if (event.status === "CONFIRMED") {
+      if (event.status === "CONFIRMED" && !event.reminderSent) {
+        // Send email
         await sendEmail(event.createdBy, event.title, event.date);
+
+        // Mark event as reminded
+        event.reminderSent = true;
+        await event.save();
+
+        // Log success
         await Job.create({
           eventId: event._id,
           createdOn: new Date().toISOString(),
@@ -50,6 +64,7 @@ async function handler(req, res) {
           status: "SENT",
         });
       } else if (event.status === "DELETED" || event.status === "CANCELLED") {
+        // Log cancellation
         await Job.create({
           eventId: event._id,
           createdOn: new Date().toISOString(),
@@ -60,7 +75,7 @@ async function handler(req, res) {
       }
       processed++;
     } catch (err) {
-      console.error(`Failed event ${event._id}:`, err);
+      console.error(`Failed event ${event._id}:`, err.message);
       await Job.create({
         eventId: event._id,
         createdOn: new Date().toISOString(),
@@ -71,8 +86,5 @@ async function handler(req, res) {
     }
   }
 
-  return res.json({ processed });
+  return res.json({ processed, checked: events.length });
 }
-
-// ✅ Wrap withAuth so CORS + JWT are applied
-export default withAuth(handler);
