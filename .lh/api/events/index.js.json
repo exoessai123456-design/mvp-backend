@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 13,
+            "activePatchIndex": 15,
             "patches": [
                 {
                     "date": 1757263491901,
@@ -60,6 +60,14 @@
                 {
                     "date": 1757440298450,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,20 +1,17 @@\n import connectDB from \"../../lib/db.js\";\r\n import Event from \"../../models/event.js\";\r\n-import middleware from \"../../lib/middleware.js\"; // handles admin auth\r\n+import { withAuth } from \"../../lib/middleware.js\";\r\n \r\n-export default async function handler(req, res) {\r\n+async function handler(req, res) {\r\n   await connectDB();\r\n \r\n-  const admin = await middleware(req, res); // make sure middleware returns a promise\r\n-  if (!admin) return; // 401 already sent\r\n-\r\n   const { method } = req;\r\n \r\n   if (method === \"GET\") {\r\n     try {\r\n       const events = await Event.find({\r\n-        createdBy: admin.email,\r\n+        createdBy: req.admin.email, // ✅ req.admin comes from withAuth\r\n         status: { $ne: \"DELETED\" },\r\n       });\r\n       return res.status(200).json(events);\r\n     } catch (err) {\r\n@@ -24,10 +21,12 @@\n   }\r\n \r\n   if (method === \"POST\") {\r\n     try {\r\n-      // ✅ Assign createdBy from authenticated admin\r\n-      const newEvent = new Event({ ...req.body, createdBy: admin.email });\r\n+      const newEvent = new Event({\r\n+        ...req.body,\r\n+        createdBy: req.admin.email, // ✅ automatically from JWT\r\n+      });\r\n       const savedEvent = await newEvent.save();\r\n       return res.status(201).json(savedEvent);\r\n     } catch (err) {\r\n       console.error(err);\r\n@@ -36,4 +35,6 @@\n   }\r\n \r\n   return res.status(405).json({ message: `Method ${method} not allowed` });\r\n }\r\n+\r\n+export default withAuth(handler);\r\n"
+                },
+                {
+                    "date": 1757624650162,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -24,8 +24,9 @@\n     try {\r\n       const newEvent = new Event({\r\n         ...req.body,\r\n         createdBy: req.admin.email, // ✅ automatically from JWT\r\n+        reminderSent: false,\r\n       });\r\n       const savedEvent = await newEvent.save();\r\n       return res.status(201).json(savedEvent);\r\n     } catch (err) {\r\n"
+                },
+                {
+                    "date": 1757625078666,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -24,9 +24,9 @@\n     try {\r\n       const newEvent = new Event({\r\n         ...req.body,\r\n         createdBy: req.admin.email, // ✅ automatically from JWT\r\n-        reminderSent: false,\r\n+        reminderSent: false\r\n       });\r\n       const savedEvent = await newEvent.save();\r\n       return res.status(201).json(savedEvent);\r\n     } catch (err) {\r\n"
                 }
             ],
             "date": 1757263491901,

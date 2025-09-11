@@ -25,6 +25,7 @@ async function handler(req, res) {
       const newEvent = new Event({
         ...req.body,
         createdBy: req.admin.email, // ✅ automatically from JWT
+        reminderSent: false
       });
       const savedEvent = await newEvent.save();
       return res.status(201).json(savedEvent);

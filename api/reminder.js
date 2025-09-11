@@ -11,6 +11,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Send email function
 async function sendEmail(to, title, date) {
   return transporter.sendMail({
     from: process.env.ADMIN_EMAIL,
@@ -36,46 +37,46 @@ export default async function handler(req, res) {
   await connectDB();
 
   const now = new Date();
-  const fiveMinutesLater = new Date(now.getTime() + 5 * 60000);
 
-  // Query events happening within the next 5 minutes
+  // Reminder window: 5 minutes ahead ± 1 minute
+  const reminderTime = new Date(now.getTime() + 5 * 60000);
+  const reminderWindowEnd = new Date(reminderTime.getTime() + 60000); // 1-minute window
+
+  console.log("Checking for events between", reminderTime, "and", reminderWindowEnd);
+
   const events = await Event.find({
-    date: { $gte: now, $lte: fiveMinutesLater },
-    reminderSent: { $ne: true }, // only events not yet reminded
+    date: { $gte: reminderTime, $lt: reminderWindowEnd },
+    status: "CONFIRMED",
+    reminderSent: { $ne: true },
   });
+
+  console.log(`Found ${events.length} events to remind`);
 
   let processed = 0;
 
   for (const event of events) {
     try {
-      if (event.status === "CONFIRMED" && !event.reminderSent) {
-        // Send email
-        await sendEmail(event.createdBy, event.title, event.date);
+      console.log(`Sending reminder for event: ${event.title} (${event._id})`);
 
-        // Mark event as reminded
-        event.reminderSent = true;
-        await event.save();
+      // Send email
+      await sendEmail(event.createdBy, event.title, event.date);
 
-        // Log success
-        await Job.create({
-          eventId: event._id,
-          createdOn: new Date().toISOString(),
-          sentTo: event.createdBy,
-          status: "SENT",
-        });
-      } else if (event.status === "DELETED" || event.status === "CANCELLED") {
-        // Log cancellation
-        await Job.create({
-          eventId: event._id,
-          createdOn: new Date().toISOString(),
-          sentTo: event.createdBy,
-          status: "FAILED",
-          motifFailure: event.status,
-        });
-      }
+      // Mark as reminded
+      event.reminderSent = true;
+      await event.save();
+
+      // Log success in Job collection
+      await Job.create({
+        eventId: event._id,
+        createdOn: new Date().toISOString(),
+        sentTo: event.createdBy,
+        status: "SENT",
+      });
+
       processed++;
     } catch (err) {
       console.error(`Failed event ${event._id}:`, err.message);
+
       await Job.create({
         eventId: event._id,
         createdOn: new Date().toISOString(),
@@ -86,5 +87,8 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.json({ processed, checked: events.length });
+  const response = { processed, checked: events.length };
+  console.log("API response:", response);
+
+  return res.json(response);
 }
