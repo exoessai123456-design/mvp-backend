@@ -37,14 +37,19 @@ export default async function handler(req, res) {
   await connectDB();
 
   const now = new Date();
-
-  // Check events where reminder should be sent now
+  const oneMinuteBefore = new Date(now.getTime() - 60000); // now - 1 min
+  const oneMinuteAfter = new Date(now.getTime() + 60000);  // now + 1 min
   const events = await Event.find({
-          status: "CONFIRMED",
-          reminderSent: { $ne: true },
-          date: { $lte: new Date(now.getTime() + 5*60000) }, // event is within next 5 minutes
+     status: "CONFIRMED",
+     reminderSent: { $ne: true },
+     $expr: {
+         $and: [
+              { $gte: [{ $subtract: ["$date", 5 * 60000] }, oneMinuteBefore] }, // date - 5 min >= now - 1 min
+              { $lte: [{ $subtract: ["$date", 5 * 60000] }, oneMinuteAfter] },  // date - 5 min <= now + 1 min
+                ]
+            }
   });
-  
+
   console.log(`Found ${events.length} events to remind`);
 
   let processed = 0;
