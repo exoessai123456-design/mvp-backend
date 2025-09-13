@@ -11,15 +11,15 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Send email function
+// Send email function (always UTC)
 async function sendEmail(to, title, date) {
+  const utcDate = new Date(date).toISOString(); // keep UTC
+
   return transporter.sendMail({
     from: process.env.ADMIN_EMAIL,
     to,
     subject: `Reminder: "${title}" event in 5 minutes`,
-    text: `Hello,\n\nThis is a reminder for your event: "${title}" scheduled at ${new Date(
-      date
-    ).toLocaleString()}.\n\n- Event Dashboard`,
+    text: `Hello,\n\nThis is a reminder for your event: "${title}" scheduled at ${utcDate} (UTC).\n\n- Event Dashboard`,
   });
 }
 
@@ -37,16 +37,19 @@ export default async function handler(req, res) {
   await connectDB();
 
   const now = new Date();
-  const oneMinuteTolerance = 60000; // 1 min
+  const oneMinuteTolerance = 60000; // 1 minute tolerance
 
-// 5 minutes before the event = target reminder time
+  // Target reminder time = 5 minutes before the event
   const windowStart = new Date(now.getTime() + 5 * 60000 - oneMinuteTolerance);
   const windowEnd = new Date(now.getTime() + 5 * 60000 + oneMinuteTolerance);
 
+  console.log("Now (UTC):", now.toISOString());
+  console.log("Reminder window (UTC):", windowStart.toISOString(), "→", windowEnd.toISOString());
+
   const events = await Event.find({
-     status: "CONFIRMED",
-     reminderSent: { $ne: true },
-     date: { $gte: windowStart, $lt: windowEnd }
+    status: "CONFIRMED",
+    reminderSent: { $ne: true },
+    date: { $gte: windowStart, $lt: windowEnd },
   });
 
   console.log(`Found ${events.length} events to remind`);
@@ -55,7 +58,7 @@ export default async function handler(req, res) {
 
   for (const event of events) {
     try {
-      console.log(`Sending reminder for event: ${event.title} (${event._id})`);
+      console.log(`Sending reminder for event: ${event.title} | Date (UTC): ${event.date.toISOString()}`);
 
       // Send email
       await sendEmail(event.createdBy, event.title, event.date);
