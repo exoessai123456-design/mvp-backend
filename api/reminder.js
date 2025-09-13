@@ -43,19 +43,23 @@ export default async function handler(req, res) {
   await connectDB();
 
   const now = new Date(); // current UTC
-  const reminderOffset = 5 * 60 * 1000; // 5 minutes before event
 
-  // Calculate dynamic 1-minute reminder window
-  const windowStart = roundToMinute(new Date(now.getTime() + reminderOffset));
-  const windowEnd = new Date(windowStart.getTime() + 60 * 1000); // 1 minute after start
+  // Dynamic reminder window: 1 minute starting now
+  const windowStart = roundToMinute(now);
+  const windowEnd = new Date(windowStart.getTime() + 60 * 1000); // 1 minute window
 
   console.log("Reminder window (UTC):", windowStart.toISOString(), "→", windowEnd.toISOString());
 
-  // Query events whose reminder time falls in this window
+  // Find events whose reminder time (event date - 5min) is inside the window
   const events = await Event.find({
     status: "CONFIRMED",
     reminderSent: { $ne: true },
-    date: { $gte: windowStart, $lt: windowEnd },
+    $expr: {
+      $and: [
+        { $gte: [{ $subtract: ["$date", 5 * 60 * 1000] }, windowStart] },
+        { $lt:  [{ $subtract: ["$date", 5 * 60 * 1000] }, windowEnd] }
+      ]
+    }
   });
 
   console.log(`Found ${events.length} events to remind`);
