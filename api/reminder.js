@@ -22,13 +22,6 @@ async function sendEmail(to, title, date) {
   });
 }
 
-// Strip milliseconds for exact minute comparisons
-function stripMilliseconds(date) {
-  const d = new Date(date);
-  d.setMilliseconds(0);
-  return d;
-}
-
 // Round down to exact minute
 function roundToMinute(date) {
   const d = new Date(date);
@@ -50,17 +43,15 @@ export default async function handler(req, res) {
   await connectDB();
 
   const now = new Date(); // current UTC
+  const reminderOffset = 5 * 60 * 1000; // 5 minutes before event
 
-  // 5 minutes before event
-  const reminderOffset = 5 * 60 * 1000;
-
-  // Calculate dynamic reminder window
-  let windowStart = roundToMinute(new Date(now.getTime() + reminderOffset - 5000)); // 5s tolerance
-  let windowEnd   = roundToMinute(new Date(now.getTime() + reminderOffset + 5000)); // 5s tolerance
+  // Calculate dynamic 1-minute reminder window
+  const windowStart = roundToMinute(new Date(now.getTime() + reminderOffset));
+  const windowEnd = new Date(windowStart.getTime() + 60 * 1000); // 1 minute after start
 
   console.log("Reminder window (UTC):", windowStart.toISOString(), "→", windowEnd.toISOString());
 
-  // Query events in this window
+  // Query events whose reminder time falls in this window
   const events = await Event.find({
     status: "CONFIRMED",
     reminderSent: { $ne: true },
@@ -77,7 +68,7 @@ export default async function handler(req, res) {
 
       await sendEmail(event.createdBy, event.title, event.date);
 
-      // Mark as reminded
+      // Mark event as reminded
       event.reminderSent = true;
       await event.save();
 
