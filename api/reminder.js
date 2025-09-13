@@ -11,14 +11,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Send email function (always UTC)
+// Send email in UTC
 async function sendEmail(to, title, date) {
-  const utcDate = new Date(date).toISOString(); // keep UTC
-
+  const utcDate = new Date(date).toISOString();
   return transporter.sendMail({
     from: process.env.ADMIN_EMAIL,
     to,
-    subject: `Reminder: "${title}" event in 5 minutes`,
+    subject: `Reminder: "${title}" event`,
     text: `Hello,\n\nThis is a reminder for your event: "${title}" scheduled at ${utcDate} (UTC).\n\n- Event Dashboard`,
   });
 }
@@ -28,7 +27,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ msg: "Method not allowed" });
   }
 
-  // 🔒 Secure with CRON_SECRET
   const { secret } = req.query;
   if (secret !== process.env.CRON_SECRET) {
     return res.status(403).json({ msg: "Forbidden" });
@@ -36,20 +34,18 @@ export default async function handler(req, res) {
 
   await connectDB();
 
-  const now = new Date();
-  const oneMinuteTolerance = 60000; // 1 minute tolerance
+  const now = new Date(); // current UTC time
+  const windowMinutes = 2; // dynamic 2-minute window
 
-  // Target reminder time = 5 minutes before the event
-  const windowStart = new Date(now.getTime() + 5 * 60000 - oneMinuteTolerance);
-  const windowEnd = new Date(now.getTime() + 5 * 60000 + oneMinuteTolerance);
+  const windowStart = new Date(now.getTime()); // start = now
+  const windowEnd = new Date(now.getTime() + windowMinutes * 60000); // end = now + 2 min
 
-  console.log("Now (UTC):", now.toISOString());
   console.log("Reminder window (UTC):", windowStart.toISOString(), "→", windowEnd.toISOString());
 
   const events = await Event.find({
     status: "CONFIRMED",
     reminderSent: { $ne: true },
-    date: { $gte: windowStart, $lt: windowEnd },
+    date: { $gte: windowStart, $lte: windowEnd },
   });
 
   console.log(`Found ${events.length} events to remind`);
@@ -58,16 +54,12 @@ export default async function handler(req, res) {
 
   for (const event of events) {
     try {
-      console.log(`Sending reminder for event: ${event.title} | Date (UTC): ${event.date.toISOString()}`);
-
-      // Send email
+      console.log(`Sending reminder for event: ${event.title} (${event._id})`);
       await sendEmail(event.createdBy, event.title, event.date);
 
-      // Mark as reminded
       event.reminderSent = true;
       await event.save();
 
-      // Log success in Job collection
       await Job.create({
         eventId: event._id,
         createdOn: new Date().toISOString(),
@@ -78,7 +70,6 @@ export default async function handler(req, res) {
       processed++;
     } catch (err) {
       console.error(`Failed event ${event._id}:`, err.message);
-
       await Job.create({
         eventId: event._id,
         createdOn: new Date().toISOString(),
