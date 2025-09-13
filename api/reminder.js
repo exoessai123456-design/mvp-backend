@@ -44,22 +44,25 @@ export default async function handler(req, res) {
 
   const now = new Date(); // current UTC
 
-  // Dynamic reminder window: 1 minute starting now
+  // 1-minute window for reminders
   const windowStart = roundToMinute(now);
-  const windowEnd = new Date(windowStart.getTime() + 60 * 1000); // 1 minute window
+  const windowEnd = new Date(windowStart.getTime() + 60 * 1000);
 
   console.log("Reminder window (UTC):", windowStart.toISOString(), "→", windowEnd.toISOString());
 
-  // Find events whose reminder time (event date - 5min) is inside the window
-  const events = await Event.find({
+  const reminderOffset = 5 * 60 * 1000; // 5 minutes
+
+  // Fetch all confirmed events that haven't been reminded yet
+  const eventsAll = await Event.find({
     status: "CONFIRMED",
     reminderSent: { $ne: true },
-    $expr: {
-      $and: [
-        { $gte: [{ $subtract: ["$date", 5 * 60 * 1000] }, windowStart] },
-        { $lt:  [{ $subtract: ["$date", 5 * 60 * 1000] }, windowEnd] }
-      ]
-    }
+  });
+
+  // Filter events whose reminder time falls within the window
+  const events = eventsAll.filter(event => {
+    const eventDate = new Date(event.date);          // convert string to Date
+    const reminderTime = eventDate.getTime() - reminderOffset;
+    return reminderTime >= windowStart.getTime() && reminderTime < windowEnd.getTime();
   });
 
   console.log(`Found ${events.length} events to remind`);
@@ -68,7 +71,7 @@ export default async function handler(req, res) {
 
   for (const event of events) {
     try {
-      console.log(`Sending reminder for event: ${event.title} (${event._id}) at ${event.date.toISOString()}`);
+      console.log(`Sending reminder for event: ${event.title} (${event._id}) at ${event.date}`);
 
       await sendEmail(event.createdBy, event.title, event.date);
 
