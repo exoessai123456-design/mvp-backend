@@ -27,6 +27,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ msg: "Method not allowed" });
   }
 
+  // Secure with CRON_SECRET
   const { secret } = req.query;
   if (secret !== process.env.CRON_SECRET) {
     return res.status(403).json({ msg: "Forbidden" });
@@ -34,18 +35,21 @@ export default async function handler(req, res) {
 
   await connectDB();
 
-  const now = new Date(); // current UTC time
-  const windowMinutes = 2; // dynamic 2-minute window
+  const now = new Date(); // current UTC
+  const reminderOffset = 5 * 60 * 1000; // 5 minutes before event
+  const tolerance = 5000; // 5 seconds tolerance
 
-  const windowStart = new Date(now.getTime()); // start = now
-  const windowEnd = new Date(now.getTime() + windowMinutes * 60000); // end = now + 2 min
+  // Calculate dynamic reminder window
+  const windowStart = new Date(now.getTime() + reminderOffset - tolerance);
+  const windowEnd = new Date(now.getTime() + reminderOffset + tolerance);
 
   console.log("Reminder window (UTC):", windowStart.toISOString(), "→", windowEnd.toISOString());
 
+  // Find events whose reminder time falls in this window
   const events = await Event.find({
     status: "CONFIRMED",
     reminderSent: { $ne: true },
-    date: { $gte: windowStart, $lte: windowEnd },
+    date: { $gte: windowStart, $lte: windowEnd }, // ensure Date objects
   });
 
   console.log(`Found ${events.length} events to remind`);
@@ -54,12 +58,15 @@ export default async function handler(req, res) {
 
   for (const event of events) {
     try {
-      console.log(`Sending reminder for event: ${event.title} (${event._id})`);
+      console.log(`Sending reminder for event: ${event.title} (${event._id}) at ${event.date.toISOString()}`);
+
       await sendEmail(event.createdBy, event.title, event.date);
 
+      // Mark event as reminded
       event.reminderSent = true;
       await event.save();
 
+      // Log success in Job collection
       await Job.create({
         eventId: event._id,
         createdOn: new Date().toISOString(),
