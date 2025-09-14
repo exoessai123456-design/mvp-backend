@@ -93,8 +93,7 @@ export default async function handler(req, res) {
 
       await sendEmail(event.createdBy, event.title, event.date);
 
-      event.reminderSent = true;
-      await event.save();
+      await Event.findByIdAndUpdate(event._id, { reminderSent: true });
 
       await Job.create({
         eventId: event._id,
