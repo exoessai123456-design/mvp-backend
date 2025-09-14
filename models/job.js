@@ -11,6 +11,8 @@ const jobSchema = new mongoose.Schema({
   motifFailure: { type: String, default: null },
 });
 
+
+delete mongoose.models.Job;
 // Reuse existing model if it exists
 const Job = mongoose.models.Job || mongoose.model("Job", jobSchema);
 

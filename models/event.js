@@ -20,7 +20,7 @@ const eventSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
+delete mongoose.models.Event;
 const Event =
   mongoose.models.Event || mongoose.model("Event", eventSchema);
 

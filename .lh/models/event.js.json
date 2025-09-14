@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 9,
+            "activePatchIndex": 10,
             "patches": [
                 {
                     "date": 1757265888155,
@@ -44,6 +44,10 @@
                 {
                     "date": 1757626360255,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,9 +19,9 @@\n   },\r\n   { timestamps: true }\r\n );\r\n \r\n-delete mongoose.models.Event;\r\n+\r\n const Event =\r\n   mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n \r\n export default Event;\r\n"
+                },
+                {
+                    "date": 1757868045882,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,9 +19,9 @@\n   },\r\n   { timestamps: true }\r\n );\r\n \r\n-\r\n+delete mongoose.models.Event;\r\n const Event =\r\n   mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n \r\n export default Event;\r\n"
                 }
             ],
             "date": 1757265888155,
