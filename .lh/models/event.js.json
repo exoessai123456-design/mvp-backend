@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 13,
+            "activePatchIndex": 15,
             "patches": [
                 {
                     "date": 1757265888155,
@@ -60,6 +60,14 @@
                 {
                     "date": 1757869366187,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,9 +19,8 @@\n   },\r\n   { timestamps: true }\r\n );\r\n \r\n-delete mongoose.models.Event;\r\n const Event =\r\n   mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n \r\n export default Event;\r\n"
+                },
+                {
+                    "date": 1757870162930,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,9 +14,9 @@\n     },\r\n     createdBy: { type: String, required: true },\r\n \r\n     // ✅ new field: track if reminder was already sent\r\n-    reminderSent: { type: Boolean, default: false },\r\n+    reminderSent: { type: Boolean, default: false,req },\r\n   },\r\n   { timestamps: true }\r\n );\r\n \r\n"
+                },
+                {
+                    "date": 1757870169815,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,9 +14,9 @@\n     },\r\n     createdBy: { type: String, required: true },\r\n \r\n     // ✅ new field: track if reminder was already sent\r\n-    reminderSent: { type: Boolean, default: false,req },\r\n+    reminderSent: { type: Boolean, default: false,required: true },\r\n   },\r\n   { timestamps: true }\r\n );\r\n \r\n"
                 }
             ],
             "date": 1757265888155,

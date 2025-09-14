@@ -15,7 +15,7 @@ const eventSchema = new mongoose.Schema(
     createdBy: { type: String, required: true },
 
     // ✅ new field: track if reminder was already sent
-    reminderSent: { type: Boolean, default: false },
+    reminderSent: { type: Boolean, default: false,required: true },
   },
   { timestamps: true }
 );
