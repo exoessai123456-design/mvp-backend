@@ -1,5 +1,6 @@
 import connectDB from "../lib/db.js";
 import Event from "../models/event.js";
+import Job from "../models/job.js";
 import nodemailer from "nodemailer";
 import { MongoClient, ObjectId } from "mongodb";
 
