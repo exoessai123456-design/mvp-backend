@@ -83,10 +83,9 @@ export default async function handler(req, res) {
         });
 
         // mark as reminded to avoid retry
-        await Event.findByIdAndUpdate(
-          event._id.toString(),
-          { $set: { reminderSent: true } },
-          { new: true }
+       await Event.updateOne(
+          { _id: event._id },
+          { $set: { reminderSent: true } }
         );
 
         continue;
@@ -98,11 +97,10 @@ export default async function handler(req, res) {
       await sendEmail(event.createdBy, event.title, event.date);
 
       // ✅ update reminderSent reliably
-      await Event.findByIdAndUpdate(
-        event._id.toString(),
-        { $set: { reminderSent: true } },
-        { new: true }
-      );
+      await Event.updateOne(
+          { _id: event._id },
+          { $set: { reminderSent: true } }
+        );
 
       await Job.create({
         eventId: event._id,
