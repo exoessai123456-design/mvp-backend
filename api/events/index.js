@@ -24,7 +24,8 @@ async function handler(req, res) {
     try {
       const newEvent = new Event({
         ...req.body,
-        createdBy: req.admin.email
+        createdBy: req.admin.email,
+        reminderSent: req.body.reminderSent ?? false
       });
       const savedEvent = await newEvent.save();
       return res.status(201).json(savedEvent);
