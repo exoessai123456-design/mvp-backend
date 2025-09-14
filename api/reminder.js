@@ -1,5 +1,5 @@
 import connectDB from "../lib/db.js";
-import Job from "../models/job.js";
+import Event from "../models/event.js";
 import nodemailer from "nodemailer";
 import { MongoClient, ObjectId } from "mongodb";
 
@@ -35,11 +35,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ msg: "Method not allowed" });
   }
 
+  // Secure with CRON_SECRET
   const { secret } = req.query;
   if (secret !== process.env.CRON_SECRET) {
     return res.status(403).json({ msg: "Forbidden" });
   }
 
+  // Connect Mongoose
   await connectDB();
 
   const now = new Date();
@@ -50,12 +52,13 @@ export default async function handler(req, res) {
 
   const reminderOffset = 5 * 60 * 1000; // 5 minutes
 
-  // Use Mongoose to fetch events
-  const eventsAll = await connectDB.Event.find({
+  // Fetch all events (CONFIRMED or CANCELLED) not reminded yet
+  const eventsAll = await Event.find({
     status: { $in: ["CONFIRMED", "CANCELLED"] },
     reminderSent: { $ne: true },
   });
 
+  // Filter events whose reminder time falls within the window
   const events = eventsAll.filter(event => {
     const eventDate = new Date(event.date);
     const reminderTime = eventDate.getTime() - reminderOffset;
@@ -64,9 +67,9 @@ export default async function handler(req, res) {
 
   console.log(`Found ${events.length} events to process`);
 
-  // Connect raw MongoDB driver directly to the DB in the URI
+  // Connect raw MongoDB driver for serverless-safe updates
   const client = await MongoClient.connect(process.env.MONGO_URI);
-  const db = client.db(); // ✅ uses DB from URI
+  const db = client.db(); // uses DB from URI
   const eventsCollection = db.collection("events");
 
   let processed = 0;
@@ -84,7 +87,7 @@ export default async function handler(req, res) {
           motifFailure: `Event status changed to ${event.status}`,
         });
 
-        // serverless-safe reminderSent update
+        // ✅ serverless-safe reminderSent update
         await eventsCollection.updateOne(
           { _id: new ObjectId(event._id) },
           { $set: { reminderSent: true } }
@@ -93,10 +96,11 @@ export default async function handler(req, res) {
         continue;
       }
 
+      // CONFIRMED → send email
       console.log(`Sending reminder for event: ${event.title} (${event._id}) at ${event.date}`);
       await sendEmail(event.createdBy, event.title, event.date);
 
-      // serverless-safe reminderSent update
+      // ✅ serverless-safe reminderSent update
       await eventsCollection.updateOne(
         { _id: new ObjectId(event._id) },
         { $set: { reminderSent: true } }
