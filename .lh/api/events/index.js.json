@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 15,
+            "activePatchIndex": 17,
             "patches": [
                 {
                     "date": 1757263491901,
@@ -68,6 +68,14 @@
                 {
                     "date": 1757625078666,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -24,9 +24,9 @@\n     try {\r\n       const newEvent = new Event({\r\n         ...req.body,\r\n         createdBy: req.admin.email, // ✅ automatically from JWT\r\n-        reminderSent: false,\r\n+        reminderSent: false\r\n       });\r\n       const savedEvent = await newEvent.save();\r\n       return res.status(201).json(savedEvent);\r\n     } catch (err) {\r\n"
+                },
+                {
+                    "date": 1757867481038,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -24,9 +24,8 @@\n     try {\r\n       const newEvent = new Event({\r\n         ...req.body,\r\n         createdBy: req.admin.email, // ✅ automatically from JWT\r\n-        reminderSent: false\r\n       });\r\n       const savedEvent = await newEvent.save();\r\n       return res.status(201).json(savedEvent);\r\n     } catch (err) {\r\n"
+                },
+                {
+                    "date": 1757867486150,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -23,9 +23,9 @@\n   if (method === \"POST\") {\r\n     try {\r\n       const newEvent = new Event({\r\n         ...req.body,\r\n-        createdBy: req.admin.email, // ✅ automatically from JWT\r\n+        createdBy: req.admin.email,\r\n       });\r\n       const savedEvent = await newEvent.save();\r\n       return res.status(201).json(savedEvent);\r\n     } catch (err) {\r\n"
                 }
             ],
             "date": 1757263491901,

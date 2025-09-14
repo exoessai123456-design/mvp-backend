@@ -52,34 +52,50 @@ export default async function handler(req, res) {
 
   const reminderOffset = 5 * 60 * 1000; // 5 minutes
 
-  // Fetch all confirmed events that haven't been reminded yet
+  // Fetch all events (CONFIRMED or CANCELLED) not reminded yet
   const eventsAll = await Event.find({
-    status: "CONFIRMED",
+    status: { $in: ["CONFIRMED", "CANCELLED"] },
     reminderSent: { $ne: true },
   });
 
   // Filter events whose reminder time falls within the window
   const events = eventsAll.filter(event => {
-    const eventDate = new Date(event.date);          // convert string to Date
+    const eventDate = new Date(event.date);
     const reminderTime = eventDate.getTime() - reminderOffset;
     return reminderTime >= windowStart.getTime() && reminderTime < windowEnd.getTime();
   });
 
-  console.log(`Found ${events.length} events to remind`);
+  console.log(`Found ${events.length} events to process`);
 
   let processed = 0;
 
   for (const event of events) {
     try {
+      if (event.status === "CANCELLED") {
+        console.log(`Skipping email for cancelled event: ${event.title} (${event._id})`);
+
+        await Job.create({
+          eventId: event._id,
+          createdOn: new Date().toISOString(),
+          sentTo: event.createdBy,
+          status: "FAILED",
+          motifFailure: `Event status changed to ${event.status}`,
+        });
+
+        // mark as reminded to avoid retry
+        event.reminderSent = true;
+        await event.save();
+        continue;
+      }
+
+      // otherwise, CONFIRMED → send email
       console.log(`Sending reminder for event: ${event.title} (${event._id}) at ${event.date}`);
 
       await sendEmail(event.createdBy, event.title, event.date);
 
-      // Mark event as reminded
       event.reminderSent = true;
       await event.save();
 
-      // Log success in Job collection
       await Job.create({
         eventId: event._id,
         createdOn: new Date().toISOString(),
