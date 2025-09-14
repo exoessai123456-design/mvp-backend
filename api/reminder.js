@@ -81,7 +81,7 @@ export default async function handler(req, res) {
 
         // ✅ mark as reminded safely for serverless
         await Event.updateOne(
-          { _id: mongoose.Types.ObjectId(event._id) },
+          { _id: new mongoose.Types.ObjectId(event._id) },
           { $set: { reminderSent: true } }
         );
 
@@ -92,7 +92,7 @@ export default async function handler(req, res) {
       await sendEmail(event.createdBy, event.title, event.date);
 
       await Event.updateOne(
-        { _id: mongoose.Types.ObjectId(event._id) },
+        { _id: new mongoose.Types.ObjectId(event._id) },
         { $set: { reminderSent: true } }
       );
 
