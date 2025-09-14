@@ -1,7 +1,7 @@
-import connectDB, { Event } from "../lib/db.js";
+import connectDB from "../lib/db.js";
 import Job from "../models/job.js";
 import nodemailer from "nodemailer";
-import mongoose from "mongoose";
+import { MongoClient, ObjectId } from "mongodb";
 
 // Configure Nodemailer
 const transporter = nodemailer.createTransport({
@@ -50,8 +50,8 @@ export default async function handler(req, res) {
 
   const reminderOffset = 5 * 60 * 1000; // 5 minutes
 
-  // Fetch events not reminded yet
-  const eventsAll = await Event.find({
+  // Use Mongoose to fetch events
+  const eventsAll = await connectDB.Event.find({
     status: { $in: ["CONFIRMED", "CANCELLED"] },
     reminderSent: { $ne: true },
   });
@@ -63,6 +63,11 @@ export default async function handler(req, res) {
   });
 
   console.log(`Found ${events.length} events to process`);
+
+  // Connect raw MongoDB driver directly to the DB in the URI
+  const client = await MongoClient.connect(process.env.MONGO_URI);
+  const db = client.db(); // ✅ uses DB from URI
+  const eventsCollection = db.collection("events");
 
   let processed = 0;
 
@@ -79,9 +84,9 @@ export default async function handler(req, res) {
           motifFailure: `Event status changed to ${event.status}`,
         });
 
-        // ✅ mark as reminded safely for serverless
-        await Event.updateOne(
-          { _id: new mongoose.Types.ObjectId(event._id) },
+        // serverless-safe reminderSent update
+        await eventsCollection.updateOne(
+          { _id: new ObjectId(event._id) },
           { $set: { reminderSent: true } }
         );
 
@@ -91,8 +96,9 @@ export default async function handler(req, res) {
       console.log(`Sending reminder for event: ${event.title} (${event._id}) at ${event.date}`);
       await sendEmail(event.createdBy, event.title, event.date);
 
-      await Event.updateOne(
-        { _id: new mongoose.Types.ObjectId(event._id) },
+      // serverless-safe reminderSent update
+      await eventsCollection.updateOne(
+        { _id: new ObjectId(event._id) },
         { $set: { reminderSent: true } }
       );
 
@@ -115,6 +121,8 @@ export default async function handler(req, res) {
       });
     }
   }
+
+  await client.close();
 
   const response = { processed, checked: events.length };
   console.log("API response:", response);
