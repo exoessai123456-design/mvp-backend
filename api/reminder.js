@@ -1,6 +1,7 @@
 import connectDB, { Event } from "../lib/db.js";
 import Job from "../models/job.js";
 import nodemailer from "nodemailer";
+import mongoose from "mongoose";
 
 // Configure Nodemailer
 const transporter = nodemailer.createTransport({
@@ -34,7 +35,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ msg: "Method not allowed" });
   }
 
-  // Secure with CRON_SECRET
   const { secret } = req.query;
   if (secret !== process.env.CRON_SECRET) {
     return res.status(403).json({ msg: "Forbidden" });
@@ -42,9 +42,7 @@ export default async function handler(req, res) {
 
   await connectDB();
 
-  const now = new Date(); // current UTC
-
-  // 1-minute window for reminders
+  const now = new Date();
   const windowStart = roundToMinute(now);
   const windowEnd = new Date(windowStart.getTime() + 60 * 1000);
 
@@ -52,13 +50,12 @@ export default async function handler(req, res) {
 
   const reminderOffset = 5 * 60 * 1000; // 5 minutes
 
-  // Fetch all events (CONFIRMED or CANCELLED) not reminded yet
+  // Fetch events not reminded yet
   const eventsAll = await Event.find({
     status: { $in: ["CONFIRMED", "CANCELLED"] },
     reminderSent: { $ne: true },
   });
 
-  // Filter events whose reminder time falls within the window
   const events = eventsAll.filter(event => {
     const eventDate = new Date(event.date);
     const reminderTime = eventDate.getTime() - reminderOffset;
@@ -82,25 +79,22 @@ export default async function handler(req, res) {
           motifFailure: `Event status changed to ${event.status}`,
         });
 
-        // mark as reminded to avoid retry
-       await Event.updateOne(
-          { _id: event._id },
+        // ✅ mark as reminded safely for serverless
+        await Event.updateOne(
+          { _id: mongoose.Types.ObjectId(event._id) },
           { $set: { reminderSent: true } }
         );
 
         continue;
       }
 
-      // otherwise, CONFIRMED → send email
       console.log(`Sending reminder for event: ${event.title} (${event._id}) at ${event.date}`);
-
       await sendEmail(event.createdBy, event.title, event.date);
 
-      // ✅ update reminderSent reliably
       await Event.updateOne(
-          { _id: event._id },
-          { $set: { reminderSent: true } }
-        );
+        { _id: mongoose.Types.ObjectId(event._id) },
+        { $set: { reminderSent: true } }
+      );
 
       await Job.create({
         eventId: event._id,
