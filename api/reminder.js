@@ -37,6 +37,8 @@ export default async function handler(req, res) {
   const windowEnd = new Date(windowStart.getTime() + 60 * 1000);
   const reminderOffset = 5 * 60 * 1000;
 
+   console.log("Reminder window (UTC):", windowStart.toISOString(), "→", windowEnd.toISOString());
+
   const eventsAll = await Event.find({
     status: { $in: ["CONFIRMED", "CANCELLED"] },
     reminderSent: { $ne: true },
