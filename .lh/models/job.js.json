@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 11,
+            "activePatchIndex": 14,
             "patches": [
                 {
                     "date": 1757440748036,
@@ -52,6 +52,18 @@
                 {
                     "date": 1757871678709,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -12,7 +12,8 @@\n });\r\n \r\n \r\n // Reuse existing model if it exists\r\n+delete mongoose.models.Event;\r\n const Job = mongoose.models(\"Job\", jobSchema);\r\n \r\n export default Job;\r\n"
+                },
+                {
+                    "date": 1757872132551,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -12,8 +12,8 @@\n });\r\n \r\n \r\n // Reuse existing model if it exists\r\n-delete mongoose.models.Event;\r\n-const Job = mongoose.models(\"Job\", jobSchema);\r\n+delete mongoose.models.Job;\r\n+const Event = mongoose.model(\"Event\", eventSchema);\r\n \r\n export default Job;\r\n"
+                },
+                {
+                    "date": 1757872138864,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,19 @@\n+import mongoose from \"mongoose\";\r\n+\r\n+const jobSchema = new mongoose.Schema({\r\n+  eventId: { type: String, required: true },\r\n+  createdOn: { type: Date, default: Date.now },\r\n+  sentTo: { type: String, required: true },\r\n+  status: {\r\n+    type: String,\r\n+    enum: [\"SENT\", \"FAILED\"]\r\n+  },\r\n+  motifFailure: { type: String, default: null },\r\n+});\r\n+\r\n+\r\n+// Reuse existing model if it exists\r\n+delete mongoose.models.Job;\r\n+const Job = mongoose.model(\"I\", eventSchema);\r\n+\r\n+export default Job;\r\n"
+                },
+                {
+                    "date": 1757872151611,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,19 @@\n+import mongoose from \"mongoose\";\r\n+\r\n+const jobSchema = new mongoose.Schema({\r\n+  eventId: { type: String, required: true },\r\n+  createdOn: { type: Date, default: Date.now },\r\n+  sentTo: { type: String, required: true },\r\n+  status: {\r\n+    type: String,\r\n+    enum: [\"SENT\", \"FAILED\"]\r\n+  },\r\n+  motifFailure: { type: String, default: null },\r\n+});\r\n+\r\n+\r\n+// Reuse existing model if it exists\r\n+delete mongoose.models.Job;\r\n+const Job = mongoose.model(\"Job\", jSchema);\r\n+\r\n+export default Job;\r\n"
                 }
             ],
             "date": 1757440748036,
