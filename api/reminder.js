@@ -2,6 +2,7 @@ import connectDB, { Event } from "../lib/db.js";
 import Job from "../models/job.js";
 import nodemailer from "nodemailer";
 
+// Configure Nodemailer
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -10,6 +11,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Send email in UTC
 async function sendEmail(to, title, date) {
   const utcDate = new Date(date).toISOString();
   return transporter.sendMail({
@@ -20,6 +22,7 @@ async function sendEmail(to, title, date) {
   });
 }
 
+// Round down to exact minute
 function roundToMinute(date) {
   const d = new Date(date);
   d.setSeconds(0, 0);
@@ -27,64 +30,102 @@ function roundToMinute(date) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "GET") return res.status(405).json({ msg: "Method not allowed" });
-  if (req.query.secret !== process.env.CRON_SECRET) return res.status(403).json({ msg: "Forbidden" });
+  if (req.method !== "GET") {
+    return res.status(405).json({ msg: "Method not allowed" });
+  }
+
+  // Secure with CRON_SECRET
+  const { secret } = req.query;
+  if (secret !== process.env.CRON_SECRET) {
+    return res.status(403).json({ msg: "Forbidden" });
+  }
 
   await connectDB();
 
-  const now = new Date();
+  const now = new Date(); // current UTC
+
+  // 1-minute window for reminders
   const windowStart = roundToMinute(now);
   const windowEnd = new Date(windowStart.getTime() + 60 * 1000);
-  const reminderOffset = 5 * 60 * 1000;
 
-   console.log("Reminder window (UTC):", windowStart.toISOString(), "→", windowEnd.toISOString());
+  console.log("Reminder window (UTC):", windowStart.toISOString(), "→", windowEnd.toISOString());
 
+  const reminderOffset = 5 * 60 * 1000; // 5 minutes
+
+  // Fetch all events (CONFIRMED or CANCELLED) not reminded yet
   const eventsAll = await Event.find({
     status: { $in: ["CONFIRMED", "CANCELLED"] },
     reminderSent: { $ne: true },
   });
 
-  const events = eventsAll.filter(ev => {
-    const reminderTime = new Date(ev.date).getTime() - reminderOffset;
+  // Filter events whose reminder time falls within the window
+  const events = eventsAll.filter(event => {
+    const eventDate = new Date(event.date);
+    const reminderTime = eventDate.getTime() - reminderOffset;
     return reminderTime >= windowStart.getTime() && reminderTime < windowEnd.getTime();
   });
 
+  console.log(`Found ${events.length} events to process`);
+
   let processed = 0;
 
-  for (const ev of events) {
+  for (const event of events) {
     try {
-      if (ev.status === "CANCELLED") {
+      if (event.status === "CANCELLED") {
+        console.log(`Skipping email for cancelled event: ${event.title} (${event._id})`);
+
         await Job.create({
-          eventId: ev._id,
-          createdOn: new Date(),
-          sentTo: ev.createdBy,
+          eventId: event._id,
+          createdOn: new Date().toISOString(),
+          sentTo: event.createdBy,
           status: "FAILED",
-          motifFailure: `Event status changed to ${ev.status}`,
+          motifFailure: `Event status changed to ${event.status}`,
         });
-      } else {
-        await sendEmail(ev.createdBy, ev.title, ev.date);
-        await Job.create({
-          eventId: ev._id,
-          createdOn: new Date(),
-          sentTo: ev.createdBy,
-          status: "SENT",
-        });
-        processed++;
+
+        // mark as reminded to avoid retry
+        await Event.findByIdAndUpdate(
+          event._id.toString(),
+          { $set: { reminderSent: true } },
+          { new: true }
+        );
+
+        continue;
       }
 
-      // ✅ mark as reminded in a single, explicit update
-      await Event.findByIdAndUpdate(ev._id.toString(), { $set: { reminderSent: true } });
+      // otherwise, CONFIRMED → send email
+      console.log(`Sending reminder for event: ${event.title} (${event._id}) at ${event.date}`);
 
-    } catch (err) {
+      await sendEmail(event.createdBy, event.title, event.date);
+
+      // ✅ update reminderSent reliably
+      await Event.findByIdAndUpdate(
+        event._id.toString(),
+        { $set: { reminderSent: true } },
+        { new: true }
+      );
+
       await Job.create({
-        eventId: ev._id,
-        createdOn: new Date(),
-        sentTo: ev.createdBy,
+        eventId: event._id,
+        createdOn: new Date().toISOString(),
+        sentTo: event.createdBy,
+        status: "SENT",
+      });
+
+      processed++;
+    } catch (err) {
+      console.error(`Failed event ${event._id}:`, err.message);
+      await Job.create({
+        eventId: event._id,
+        createdOn: new Date().toISOString(),
+        sentTo: event.createdBy,
         status: "FAILED",
         motifFailure: err.message,
       });
     }
   }
 
-  return res.json({ processed, checked: events.length });
+  const response = { processed, checked: events.length };
+  console.log("API response:", response);
+
+  return res.json(response);
 }
