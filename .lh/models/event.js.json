@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 15,
+            "activePatchIndex": 24,
             "patches": [
                 {
                     "date": 1757265888155,
@@ -68,6 +68,42 @@
                 {
                     "date": 1757870169815,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,9 +14,9 @@\n     },\r\n     createdBy: { type: String, required: true },\r\n \r\n     // ✅ new field: track if reminder was already sent\r\n-    reminderSent: { type: Boolean, default: false,req },\r\n+    reminderSent: { type: Boolean, default: false,required: true },\r\n   },\r\n   { timestamps: true }\r\n );\r\n \r\n"
+                },
+                {
+                    "date": 1757870590935,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,9 +14,9 @@\n     },\r\n     createdBy: { type: String, required: true },\r\n \r\n     // ✅ new field: track if reminder was already sent\r\n-    reminderSent: { type: Boolean, default: false,required: true },\r\n+    reminderSent: { type: Boolean,,required: true },\r\n   },\r\n   { timestamps: true }\r\n );\r\n \r\n"
+                },
+                {
+                    "date": 1757870603045,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,26 @@\n+import mongoose from \"mongoose\";\r\n+\r\n+const eventSchema = new mongoose.Schema(\r\n+  {\r\n+    title: { type: String, required: true },\r\n+    date: { type: Date, required: true },\r\n+    name: { type: String, required: true },\r\n+    phone: { type: String, required: true },\r\n+    type: { type: String, required: true },\r\n+    status: {\r\n+      type: String,\r\n+      enum: [\"CONFIRMED\", \"COMPLETED\", \"CANCELLED\", \"DELETED\"],\r\n+      default: \"CONFIRMED\",\r\n+    },\r\n+    createdBy: { type: String, required: true },\r\n+\r\n+    // ✅ new field: track if reminder was already sent\r\n+    reminderSent: { type: Boolean ,required: true },\r\n+  },\r\n+  { timestamps: true }\r\n+);\r\n+\r\n+const Event =\r\n+  mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n+\r\n+export default Event;\r\n"
+                },
+                {
+                    "date": 1757871153855,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,39 +14,13 @@\n     },\r\n     createdBy: { type: String, required: true },\r\n \r\n     // ✅ new field: track if reminder was already sent\r\n-    reminderSent: { type: Boolean ,required: true },\r\n+    reminderSent: { type: b ,required: true },\r\n   },\r\n   { timestamps: true }\r\n );\r\n \r\n const Event =\r\n   mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n \r\n export default Event;\r\n-import mongoose from \"mongoose\";\r\n-\r\n-const eventSchema = new mongoose.Schema(\r\n-  {\r\n-    title: { type: String, required: true },\r\n-    date: { type: Date, required: true },\r\n-    name: { type: String, required: true },\r\n-    phone: { type: String, required: true },\r\n-    type: { type: String, required: true },\r\n-    status: {\r\n-      type: String,\r\n-      enum: [\"CONFIRMED\", \"COMPLETED\", \"CANCELLED\", \"DELETED\"],\r\n-      default: \"CONFIRMED\",\r\n-    },\r\n-    createdBy: { type: String, required: true },\r\n-\r\n-    // ✅ new field: track if reminder was already sent\r\n-    reminderSent: { type: Boolean,,required: true },\r\n-  },\r\n-  { timestamps: true }\r\n-);\r\n-\r\n-const Event =\r\n-  mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n-\r\n-export default Event;\r\n"
+                },
+                {
+                    "date": 1757871160237,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,26 @@\n+import mongoose from \"mongoose\";\r\n+\r\n+const eventSchema = new mongoose.Schema(\r\n+  {\r\n+    title: { type: String, required: true },\r\n+    date: { type: Date, required: true },\r\n+    name: { type: String, required: true },\r\n+    phone: { type: String, required: true },\r\n+    type: { type: String, required: true },\r\n+    status: {\r\n+      type: String,\r\n+      enum: [\"CONFIRMED\", \"COMPLETED\", \"CANCELLED\", \"DELETED\"],\r\n+      default: \"CONFIRMED\",\r\n+    },\r\n+    createdBy: { type: String, required: true },\r\n+\r\n+    // ✅ new field: track if reminder was already sent\r\n+    reminderSent: { type: Boolean ,required: true },\r\n+  },\r\n+  { timestamps: true }\r\n+);\r\n+\r\n+const Event =\r\n+  mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n+\r\n+export default Event;\r\n"
+                },
+                {
+                    "date": 1757871278188,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -12,10 +12,8 @@\n       enum: [\"CONFIRMED\", \"COMPLETED\", \"CANCELLED\", \"DELETED\"],\r\n       default: \"CONFIRMED\",\r\n     },\r\n     createdBy: { type: String, required: true },\r\n-\r\n-    // ✅ new field: track if reminder was already sent\r\n     reminderSent: { type: Boolean ,required: true },\r\n   },\r\n   { timestamps: true }\r\n );\r\n@@ -23,30 +21,4 @@\n const Event =\r\n   mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n \r\n export default Event;\r\n-import mongoose from \"mongoose\";\r\n-\r\n-const eventSchema = new mongoose.Schema(\r\n-  {\r\n-    title: { type: String, required: true },\r\n-    date: { type: Date, required: true },\r\n-    name: { type: String, required: true },\r\n-    phone: { type: String, required: true },\r\n-    type: { type: String, required: true },\r\n-    status: {\r\n-      type: String,\r\n-      enum: [\"CONFIRMED\", \"COMPLETED\", \"CANCELLED\", \"DELETED\"],\r\n-      default: \"CONFIRMED\",\r\n-    },\r\n-    createdBy: { type: String, required: true },\r\n-\r\n-    // ✅ new field: track if reminder was already sent\r\n-    reminderSent: { type: b ,required: true },\r\n-  },\r\n-  { timestamps: true }\r\n-);\r\n-\r\n-const Event =\r\n-  mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n-\r\n-export default Event;\r\n"
+                },
+                {
+                    "date": 1757871353425,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -12,9 +12,9 @@\n       enum: [\"CONFIRMED\", \"COMPLETED\", \"CANCELLED\", \"DELETED\"],\r\n       default: \"CONFIRMED\",\r\n     },\r\n     createdBy: { type: String, required: true },\r\n-    reminderSent: { type: Boolean ,required: true },\r\n+    reminderSent: { type: Boolean, required: true, default: false },\r\n   },\r\n   { timestamps: true }\r\n );\r\n \r\n"
+                },
+                {
+                    "date": 1757871491654,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -17,8 +17,9 @@\n   },\r\n   { timestamps: true }\r\n );\r\n \r\n+delete mongoose.models.Event;\r\n const Event =\r\n   mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n \r\n export default Event;\r\n"
+                },
+                {
+                    "date": 1757871622876,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -12,14 +12,16 @@\n       enum: [\"CONFIRMED\", \"COMPLETED\", \"CANCELLED\", \"DELETED\"],\r\n       default: \"CONFIRMED\",\r\n     },\r\n     createdBy: { type: String, required: true },\r\n+\r\n+    // ✅ new field\r\n     reminderSent: { type: Boolean, required: true, default: false },\r\n   },\r\n   { timestamps: true }\r\n );\r\n \r\n+// ✅ Always delete cached model before redefining (fixes dev/prod hot-reload issues)\r\n delete mongoose.models.Event;\r\n-const Event =\r\n-  mongoose.models.Event || mongoose.model(\"Event\", eventSchema);\r\n+const Event = mongoose.model(\"Event\", eventSchema);\r\n \r\n export default Event;\r\n"
+                },
+                {
+                    "date": 1757871629186,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -19,9 +19,8 @@\n   },\r\n   { timestamps: true }\r\n );\r\n \r\n-// ✅ Always delete cached model before redefining (fixes dev/prod hot-reload issues)\r\n delete mongoose.models.Event;\r\n const Event = mongoose.model(\"Event\", eventSchema);\r\n \r\n export default Event;\r\n"
                 }
             ],
             "date": 1757265888155,

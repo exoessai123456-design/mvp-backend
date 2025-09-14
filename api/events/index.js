@@ -25,10 +25,11 @@ async function handler(req, res) {
       const newEvent = new Event({
         ...req.body,
         createdBy: req.admin.email,
-        reminderSent: req.body.reminderSent ?? false
       });
+      console.log(newEvent);
       const savedEvent = await newEvent.save();
       return res.status(201).json(savedEvent);
+      
     } catch (err) {
       console.error(err);
       return res.status(500).json({ message: "Error creating event" });

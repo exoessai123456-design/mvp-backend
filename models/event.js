@@ -14,13 +14,13 @@ const eventSchema = new mongoose.Schema(
     },
     createdBy: { type: String, required: true },
 
-    // ✅ new field: track if reminder was already sent
-    reminderSent: { type: Boolean, default: false,required: true },
+    // ✅ new field
+    reminderSent: { type: Boolean, required: true, default: false },
   },
   { timestamps: true }
 );
 
-const Event =
-  mongoose.models.Event || mongoose.model("Event", eventSchema);
+delete mongoose.models.Event;
+const Event = mongoose.model("Event", eventSchema);
 
 export default Event;

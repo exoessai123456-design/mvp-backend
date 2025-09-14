@@ -13,6 +13,7 @@ const jobSchema = new mongoose.Schema({
 
 
 // Reuse existing model if it exists
-const Job = mongoose.models.Job || mongoose.model("Job", jobSchema);
+delete mongoose.models.Job;
+const Job = mongoose.models("Job", jobSchema);
 
 export default Job;
