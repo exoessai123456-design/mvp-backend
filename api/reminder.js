@@ -86,7 +86,7 @@ export default async function handler(req, res) {
 
         await Job.create({
           eventId: event._id,
-          createdOn: new Date().toISOString(),
+          createdOn: new Date(Date.now() - 60*60*1000).toISOString(),
           sentTo: event.createdBy,
           status: "FAILED",
           motifFailure: `Event status changed to ${event.status}`,
@@ -113,7 +113,7 @@ export default async function handler(req, res) {
 
       await Job.create({
         eventId: event._id,
-        createdOn: new Date().toISOString(),
+        createdOn: new Date(Date.now() - 60*60*1000).toISOString(),
         sentTo: event.createdBy,
         status: "SENT",
       });
