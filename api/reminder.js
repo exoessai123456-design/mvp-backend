@@ -15,12 +15,11 @@ const transporter = nodemailer.createTransport({
 
 // Send email in UTC
 async function sendEmail(to, title, date) {
-  const utcDate = new Date(date).toISOString();
   return transporter.sendMail({
     from: process.env.ADMIN_EMAIL,
     to,
     subject: `Reminder: "${title}" event`,
-    text: `Hello,\n\nThis is a reminder for your event: "${title}" scheduled at ${utcDate} (UTC).\n\n- Event Dashboard`,
+    text: `Hello,\n\nThis is a reminder for your event: "${title}" scheduled at ${date}.\n\n- Event Dashboard`,
   });
 }
 
