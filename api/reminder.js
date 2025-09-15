@@ -45,8 +45,11 @@ export default async function handler(req, res) {
   // Connect Mongoose
   await connectDB();
 
-  const now = new Date();
-  const windowStart = roundToMinute(now);
+  const oneHour = 60 * 60 * 1000;
+  const nowPlus1h = new Date(Date.now() + oneHour);
+
+  
+  const windowStart = roundToMinute(nowPlus1h);
   const windowEnd = new Date(windowStart.getTime() + 60 * 1000);
 
   console.log("Reminder window (UTC):", windowStart.toISOString(), "→", windowEnd.toISOString());
@@ -67,6 +70,7 @@ export default async function handler(req, res) {
   });
 
   console.log(`Found ${events.length} events to process`);
+
 
   // Connect raw MongoDB driver for serverless-safe updates
   const client = await MongoClient.connect(process.env.MONGO_URI);
